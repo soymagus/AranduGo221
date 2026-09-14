@@ -1,0 +1,8 @@
+Options -Indexes
+RewriteEngine On
+RewriteRule ^(?:config|src|database|storage|vendor)(?:/|$) - [F,L,NC]
+RewriteRule ^uploads/.*\.(?:php[0-9]?|phtml|phar|cgi|pl|py|sh)$ - [F,L,NC]
+
+<FilesMatch "^(composer\.(json|lock)|README\.md)$">
+  Require all denied
+</FilesMatch>
