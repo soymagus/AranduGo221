@@ -1,6 +1,0 @@
-<?php
-require dirname(__DIR__).'/bootstrap.php';
-use AranduGo\Auth; use AranduGo\Support;
-if(Auth::check())Support::redirect('dashboardcliente/');$error='';
-if($_SERVER['REQUEST_METHOD']==='POST'){if(Auth::attempt(trim($_POST['login']??''),(string)($_POST['password']??'')))Support::redirect('dashboardcliente/');$error='Usuario, contraseña o acceso temporalmente bloqueado.';}
-?><!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ingresar · Arandu Go</title><link rel="stylesheet" href="<?=Support::url('assets/dashboard.css')?>"></head><body><main class="login"><form class="login-card" method="post"><div class="brand"><span class="mark">A</span><div><strong>Arandu Go</strong><div>Panel de control</div></div></div><h1>Iniciar sesión</h1><p>Ingresá con el usuario creado durante la instalación.</p><?php if($error):?><p class="error"><?=Support::e($error)?></p><?php endif;?><label class="field">Usuario o correo<input name="login" autocomplete="username" required autofocus></label><label class="field">Contraseña<input type="password" name="password" autocomplete="current-password" required></label><p><button class="btn blue">Ingresar</button></p><p><a href="<?=Support::url('dashboardcliente/recuperar.php')?>">¿Olvidaste tu contraseña?</a></p></form></main></body></html>
