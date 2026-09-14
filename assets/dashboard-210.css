@@ -1,0 +1,21 @@
+/* Arandu Go 2.1.0: navegación compacta, asistente real y editores plegables. */
+.top{position:sticky;top:0;z-index:40;background:#f4f7fb;padding-block:14px}
+.tabs{display:grid;grid-template-columns:repeat(6,minmax(118px,1fr));gap:4px;padding:4px;background:#e4eaf3;border:1px solid #d5deeb;border-radius:12px;position:sticky;top:94px;z-index:35}
+.tabs .btn{border-radius:9px;padding:11px 10px;min-width:0;background:transparent;color:#24344e;box-shadow:none}
+.tabs .btn.blue{background:#1769d2;color:#fff}
+.guide-210{border:1px solid #cdd9ea;background:#fff;border-radius:16px;padding:22px;margin:18px 0;box-shadow:0 12px 35px rgba(18,35,61,.08)}
+.guide-210-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px}.guide-210-head h2{margin:2px 0 5px}.guide-210-head p{margin:0;color:#60708a}
+.stepper-210{display:flex;align-items:flex-start;margin:22px 0 26px;overflow-x:auto;padding:5px 3px 12px;scrollbar-width:thin}
+.step-210{position:relative;flex:1;min-width:86px;border:0;background:none;color:#64748b;padding:0;text-align:center;cursor:pointer}
+.step-210:not(:last-child)::after{content:"";position:absolute;height:3px;background:#cbd5e1;top:17px;left:calc(50% + 18px);right:calc(-50% + 18px);z-index:0}
+.step-210.done:not(:last-child)::after{background:#20a64a}.step-210 i{position:relative;z-index:1;display:grid;place-items:center;width:36px;height:36px;margin:auto;border-radius:50%;background:#cbd5e1;color:#fff;font-style:normal;font-weight:800;border:3px solid #fff;box-shadow:0 0 0 2px #cbd5e1}
+.step-210.current i{background:#1769d2;box-shadow:0 0 0 3px #9ec5f7}.step-210.done i{background:#20a64a;box-shadow:0 0 0 2px #86d49b}.step-210.skipped i{background:#d69a14;box-shadow:0 0 0 2px #f4cf73}
+.step-210 small{display:block;margin-top:8px;line-height:1.15;font-size:11px;white-space:normal}
+.guide-workspace-210{border-top:1px solid #e3e9f2;padding-top:18px}.guide-workspace-210>.card{margin:0;border:0;box-shadow:none;padding:0}.guide-workspace-210 .content-card-head{display:none}.guide-workspace-210 .collapsible-content{display:block!important}.guide-workspace-210 .close-content-card{display:none!important}
+.guide-actions-210{display:flex;gap:10px;flex-wrap:wrap;border-top:1px solid #e3e9f2;margin-top:20px;padding-top:18px}.guide-actions-210 [data-next]{margin-left:auto}
+.guide-210-summary{padding:18px;border-radius:12px;background:#eef6ff;color:#193a68}
+.gallery-card.gallery-collapsed-210{display:grid;grid-template-columns:76px 1fr auto;align-items:center;gap:14px;padding:12px}.gallery-card.gallery-collapsed-210 .gallery-preview{height:58px}.gallery-card.gallery-collapsed-210 .gallery-fields{display:none}.gallery-card.gallery-open-210{display:block}.gallery-card.gallery-open-210 .gallery-fields{display:grid}.gallery-summary-210{font-weight:700}.gallery-toggle-210{white-space:nowrap}
+.module .footer-visible-210{margin-left:12px}.whatsapp-brand,.social-whatsapp{--social-bg:#25d366!important;--social-icon:#fff!important;background:#25d366!important;color:#fff!important;border:2px solid #fff!important}.social-whatsapp svg,.ui-icon-whatsapp{fill:#fff!important}
+.social-urlgo .urlgo-logo{width:32px!important;height:32px!important;max-width:none!important;object-fit:contain!important;transform:scale(1.15)}
+.media-upload-210{display:inline-flex}.media-help-210{color:#60708a;font-size:12px;margin:4px 0 0}.free-editor{border:1px solid #d9e2ee;border-radius:13px;padding:14px;margin-bottom:12px}.free-editor>h3{margin:0}.free-editor.free-collapsed-210>:not(h3):not(.free-toggle-210){display:none}.free-toggle-210{float:right;margin-top:-38px}
+@media(max-width:900px){.tabs{grid-template-columns:repeat(6,minmax(130px,1fr));overflow-x:auto;top:82px}.top{position:relative}.tabs{position:relative;top:auto}.guide-210{padding:16px}.step-210{min-width:72px}.step-210 small{display:none}.guide-actions-210 .btn{flex:1 1 42%}.guide-actions-210 [data-next]{margin-left:0}.gallery-card.gallery-collapsed-210{grid-template-columns:56px 1fr auto}}

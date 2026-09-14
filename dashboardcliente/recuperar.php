@@ -1,0 +1,10 @@
+<?php
+require dirname(__DIR__).'/bootstrap.php';
+use AranduGo\Database;use AranduGo\Mailer;use AranduGo\Support;
+$sent=false;
+if($_SERVER['REQUEST_METHOD']==='POST'){
+ $email=filter_var($_POST['email']??'',FILTER_VALIDATE_EMAIL);
+ if($email){$users=Database::table('users');$resets=Database::table('password_resets');$stmt=Database::connection()->prepare("SELECT id,name,email FROM {$users} WHERE email=? AND active=1 LIMIT 1");$stmt->execute([$email]);$user=$stmt->fetch();if($user){$token=bin2hex(random_bytes(32));$hash=hash('sha256',$token);Database::connection()->prepare("DELETE FROM {$resets} WHERE user_id=? OR expires_at<NOW()")->execute([$user['id']]);Database::connection()->prepare("INSERT INTO {$resets}(user_id,token_hash,expires_at) VALUES(?,?,DATE_ADD(NOW(),INTERVAL 60 MINUTE))")->execute([$user['id'],$hash]);$url=Support::url('dashboardcliente/restablecer.php?token='.urlencode($token));Mailer::send($user['email'],$user['email'],$user['name'],'Restablecer acceso a Arandu Go','<p>Usá este enlace durante los próximos 60 minutos:</p><p><a href="'.Support::e($url).'">Restablecer contraseña</a></p>',"Restablecé tu contraseña: {$url}");}}
+ $sent=true;
+}
+?><!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Recuperar acceso</title><link rel="stylesheet" href="<?=Support::url('assets/dashboard.css')?>"></head><body><main class="login"><form class="login-card" method="post"><div class="brand"><span class="mark">A</span><strong>Arandu Go</strong></div><h1>Recuperar acceso</h1><?php if($sent):?><p class="notice">Si el correo existe, enviamos un enlace válido por 60 minutos.</p><?php else:?><p>Ingresá el correo asociado a tu usuario.</p><label class="field">Correo<input type="email" name="email" required autofocus></label><p><button class="btn blue">Enviar enlace</button></p><?php endif;?><a href="<?=Support::url('dashboardcliente/login.php')?>">Volver al ingreso</a></form></main></body></html>
