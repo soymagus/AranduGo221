@@ -1,0 +1,21 @@
+<?php
+require __DIR__.'/bootstrap.php';
+use AranduGo\Database;use AranduGo\Mailer;use AranduGo\SiteRepository;use AranduGo\Support;
+$ajax=str_contains(strtolower((string)($_SERVER['HTTP_ACCEPT']??'')),'application/json')||strtolower((string)($_SERVER['HTTP_X_REQUESTED_WITH']??''))==='xmlhttprequest';
+$respond=function(bool $ok,string $message,int $status=200,array $extra=[])use($ajax):never{http_response_code($status);if($ajax)Support::json(['ok'=>$ok,'message'=>$message]+$extra,$status);$target=$ok?'?enviado=1#contacto':'?error='.rawurlencode($message).'#contacto';header('Location: '.Support::url($target),true,303);exit;};
+if($_SERVER['REQUEST_METHOD']!=='POST')Support::redirect('');
+if(!empty($_POST['website']))$respond(false,'No fue posible procesar el formulario.',422);
+$attempts=array_values(array_filter($_SESSION['arandu_contact_attempts']??[],fn($time)=>is_int($time)&&$time>time()-600));if(count($attempts)>=5)$respond(false,'Demasiados intentos. Esperá unos minutos antes de volver a enviar.',429);$attempts[]=time();$_SESSION['arandu_contact_attempts']=$attempts;
+$d=SiteRepository::published();if(!empty($d['demo']['active'])||!empty($d['contactForm']['demoMode']))$respond(false,'El formulario está en modo demostración. Definí un correo válido y completá la personalización antes de habilitarlo.',422);
+$name=trim((string)($_POST['name']??''));$email=filter_var($_POST['email']??'',FILTER_VALIDATE_EMAIL);$subject=preg_replace('/[\r\n]+/',' ',trim((string)($_POST['subject']??'')));$message=trim((string)($_POST['message']??''));$phone=trim((string)($_POST['phone']??''));if($name===''||!$email||mb_strlen($subject)<3||mb_strlen($subject)>180||mb_strlen($message)<5)$respond(false,'Revisá los datos ingresados e intentá nuevamente.',422);
+$captcha=$d['contactForm']['captchaType']??'none';if($captcha==='integrated'&&empty($_POST['human']))$respond(false,'Marcá la verificación antes de enviar.',422);
+if($captcha==='math'){
+ $id=preg_replace('/[^a-f0-9]/','',strtolower((string)($_POST['math_id']??'')));
+ $challenges=$_SESSION['arandu_math_challenges']??[];$challenge=$id!==''?($challenges[$id]??null):null;
+ $answer=filter_var(trim((string)($_POST['math_answer']??'')),FILTER_VALIDATE_INT);
+ if(!$challenge||time()>(int)($challenge['expires']??0)||$answer===false||$answer!==(int)($challenge['answer']??-1))$respond(false,'El resultado de la suma es incorrecto. Revisalo e intentá nuevamente.',422,['captcha'=>'math']);
+ unset($_SESSION['arandu_math_challenges'][$id]);
+}
+if($captcha==='google_v2'){$secret=$config['recaptcha']['secret_key']??'';$token=$_POST['g-recaptcha-response']??'';if(!$secret||!$token)$respond(false,'No fue posible iniciar la verificación reCAPTCHA.',422);$context=stream_context_create(['http'=>['method'=>'POST','header'=>'Content-Type: application/x-www-form-urlencoded','content'=>http_build_query(['secret'=>$secret,'response'=>$token,'remoteip'=>$_SERVER['REMOTE_ADDR']??'']),'timeout'=>15]]);$result=json_decode((string)file_get_contents('https://www.google.com/recaptcha/api/siteverify',false,$context),true);if(empty($result['success']))$respond(false,'No fue posible verificar reCAPTCHA.',422);}
+$recipient=filter_var($d['contactForm']['recipientEmail']??$d['business']['email']??'',FILTER_VALIDATE_EMAIL);$safe=fn($v)=>htmlspecialchars((string)$v,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8');$delivered=false;if($recipient)$delivered=Mailer::send($recipient,$email,$name,'Consulta web: '.$subject,'<h2>'.$safe($subject).'</h2><p><b>Nombre:</b> '.$safe($name).'</p><p><b>Correo:</b> '.$safe($email).'</p><p><b>Teléfono:</b> '.$safe($phone).'</p><p>'.nl2br($safe($message)).'</p>',"Asunto: $subject\nNombre: $name\nCorreo: $email\nTeléfono: $phone\n\n$message");
+$pdo=Database::connection();$table=Database::table('contact_messages');$pdo->exec("DELETE FROM {$table} WHERE created_at < DATE_SUB(NOW(), INTERVAL 180 DAY)");$stmt=$pdo->prepare("INSERT INTO {$table}(name,email,phone,subject,message,timezone,delivered) VALUES(?,?,?,?,?,?,?)");$stmt->execute([$name,$email,$phone,$subject,!empty($d['contactForm']['keepMessageCopy'])?$message:null,$d['contactForm']['timezone']??'UTC',$delivered?1:0]);if($delivered)$respond(true,'Su mensaje ha sido enviado.');$respond(false,'La consulta fue registrada, pero no pudo enviarse por correo. Intentá nuevamente o usá otro canal de contacto.',502);

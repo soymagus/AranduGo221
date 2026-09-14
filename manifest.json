@@ -1,0 +1,17 @@
+{
+  "product": "arandu-go",
+  "name": "Arandu Go PHP para cPanel",
+  "package_type": "install",
+  "version": "2.2.1",
+  "schema_version": 7,
+  "minimum_php": "8.1.0",
+  "minimum_installed_version": "1.0.13",
+  "protected_paths": [
+    "config/config.php",
+    "storage/installed.lock",
+    "storage/logs",
+    "storage/backups",
+    "storage/updates",
+    "uploads"
+  ]
+}
